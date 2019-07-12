@@ -20,7 +20,9 @@ inputs:
 
 outputs:
   output_cnv: {type: File, outputSource: control_free_c/output_cnv}
-  output_ratio: {type: File, outputSource: control_free_c/output_txt}
+  cnv_bam_ratio: {type: File, outputSource: control_free_c/output_txt}
+  cnv_pval: {type: File, outputSource: control_free_c_r/output_pval}
+  cnv_png: {type: File, outputSource: control_free_c_viz/output_png}
 
 steps:
   samtools_tumor_cram2bam:
@@ -61,6 +63,18 @@ steps:
       output_basename: output_basename
       config_file: gen_config/config_file
     out: [output_txt, output_cnv]
+  control_free_c_r:
+    run: ../tools/control_freec_R.cwl
+    in:
+      cnv_bam_ratio: control_free_c/output_txt
+      cnv_result: control_free_c/output_cnv
+    out: [output_pval]
+  control_free_c_viz:
+    run: ../tools/control_freec_visualize.cwl
+    in:
+      output_basename: output_basename
+      cnv_bam_ratio: control_free_c/output_txt
+    out: [output_png]
     
 $namespaces:
   sbg: https://sevenbridges.com
