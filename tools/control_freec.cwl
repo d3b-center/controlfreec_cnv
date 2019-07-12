@@ -16,7 +16,7 @@ arguments:
   - position: 1
     shellQuote: false
     valueFrom: >-
-      $(inputs.reference.path)
+      $(inputs.ref_chr.path)
       && /FREEC-11.5/src/freec
       -conf $(inputs.config_file.path)
       && mv $(inputs.tumor_bam.basename)_ratio.txt $(inputs.output_basename).ratio.txt
