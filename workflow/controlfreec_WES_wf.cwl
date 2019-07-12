@@ -7,35 +7,54 @@ requirements:
   - class: MultipleInputFeatureRequirement
 
 inputs:
-  tumor_bam: { type: File, secondaryFiles: [^.bai] }
-  normal_bam: { type: File, secondaryFiles: [^.bai] }
+  input_tumor: { type: File, secondaryFiles: [^.crai] }
+  input_normal: { type: File, secondaryFiles: [^.crai] }
   ref_chr: {type: File, doc: "folder of reference chromosomes"}
+  reference: type: File
   chr_len: {type: File, doc: "file with chromosome lengths"}
   threads: int
   output_basename: string
   capture_regions: {type: ['null', File], doc: "If not WGS, provide "}
-  exome_flag: string
+  exome_flag: {type: string, doc: "insert 'Y' if exome mode"
 
 outputs:
   output_cnv: {type: File, outputSource: control_free_c/output_cnv}
   output_ratio: {type: File, outputSource: control_free_c/output_txt}
 
 steps:
+  samtools_tumor_cram2bam:
+    run: ../tools/samtools_cram2bam.cwl
+    in:
+      input_reads: input_tumor
+      threads:
+        valueFrom: ${return 36}
+      reference: reference
+    out: [bam_file]
+
+  samtools_normal_cram2bam:
+    run: ../tools/samtools_cram2bam.cwl
+    in:
+      threads:
+        valueFrom: ${return 36}
+      reference: indexed_reference_fasta
+    out: [bam_file]
+
   gen_config:
     run: ../tools/gen_controlfreec_configfile.cwl
     in:
-      tumor_bam: tumor_bam
-      normal_bam: normal_bam
+      tumor_bam: samtools_tumor_cram2bam/bam_file
+      normal_bam: samtools_normal_cram2bam/bam_file
       capture_regions: capture_regions
       exome_flag: exome_flag
       chr_len: chr_len
       threads: threads
     out: [config_file]
+
   control_free_c: 
     run: ../tools/control_freec.cwl
     in: 
-      tumor_bam: tumor_bam
-      normal_bam: normal_bam
+      tumor_bam: samtools_tumor_cram2bam/bam_file
+      normal_bam: samtools_normal_cram2bam/bam_file
       capture_regions: capture_regions
       ref_chr: ref_chr
       chr_len: chr_len
