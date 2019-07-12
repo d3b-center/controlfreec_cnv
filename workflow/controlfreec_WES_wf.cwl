@@ -11,7 +11,7 @@ inputs:
   input_tumor: { type: File, secondaryFiles: [.crai] }
   input_normal: { type: File, secondaryFiles: [.crai] }
   ref_chr: {type: File, doc: "folder of reference chromosomes"}
-  reference: File
+  reference: {type: File, secondaryFiles: [.fai]}
   chr_len: {type: File, doc: "file with chromosome lengths"}
   threads: int
   output_basename: string
