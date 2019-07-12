@@ -23,7 +23,6 @@ arguments:
       CONTENT="[general]
       
       chrLenFile = $(inputs.chr_len.path)
-
       chrFiles = ./GRCh38_everyChrs
       
       ploidy = 2
@@ -69,7 +68,7 @@ arguments:
       
       ${
         if (inputs.exome_flag == 'Y') {
-          var exome = "echo \"\n[target]\ncaptureRegions = inputs.capture_regions.path\n\"";
+          var exome = "echo \"\n[target]\ncaptureRegions = " + inputs.capture_regions.path + "\n\"";
           return exome;
         }
         else{
