@@ -1,5 +1,6 @@
-# controlfreec_wes_cnv
-Re-develop/redeploy our controlfreec tool for exome mode
+# controlfreec_cnv
+Re-develop/redeploy our controlfreec tool to incorporate exome mode
+When running exome mode: include bed file and 'Y' for exome flag. Otherwise, it will run WGS 
 
 Current docker:
 https://github.com/d3b-center/bixtools/tree/master/controlfreec/11.5
