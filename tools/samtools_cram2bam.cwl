@@ -5,10 +5,10 @@ requirements:
   - class: ShellCommandRequirement
   - class: DockerRequirement
     dockerPull: 'kfdrc/samtools:1.9'
+  - class: InlineJavascriptRequirement
   - class: ResourceRequirement
     ramMin: 10000
-    coresMin: 36
-  - class: InlineJavascriptRequirement
+    coresMin: $(inputs.threads)
 baseCommand: [samtools, view]
 arguments:
   - position: 1
@@ -16,14 +16,15 @@ arguments:
     valueFrom: >-
       -@ $(inputs.threads)
       -bh $(inputs.input_reads.path)
-      -m 1G
       -T $(inputs.reference.path)
       > $(inputs.input_reads.nameroot).bam
       && samtools index $(inputs.input_reads.nameroot).bam $(inputs.input_reads.nameroot).bai
 inputs:
   input_reads: File
-  threads: int
-  reference: File
+  threads:
+    type: ['null', int]
+    default: 16
+  reference: {type: File, secondaryFiles: [.fai]}
 outputs:
   bam_file:
     type: File
