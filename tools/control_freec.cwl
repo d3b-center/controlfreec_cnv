@@ -29,7 +29,7 @@ arguments:
 
       ${
         var cmd = "mv " + inputs.tumor_bam.basename + "_BAF.txt " + inputs.output_basename + "_tumor_BAF.txt";
-        if (b_allele == null){
+        if (inputs.b_allele == null){
           cmd = "echo No b allele file, skipping output BAF";
         }
         return cmd;
