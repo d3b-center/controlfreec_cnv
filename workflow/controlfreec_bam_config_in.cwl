@@ -9,7 +9,9 @@ requirements:
 
 inputs:
   input_tumor: { type: File, secondaryFiles: [^.bai] }
+  tumor_mini_pileup: {type: ['null', File], doc: "Add if you have a pre-compiled pileup for b allele freq"}
   input_normal: { type: File, secondaryFiles: [^.bai] }
+  normal_mini_pileup: {type: ['null', File], doc: "Add if you have a pre-compiled pileup for b allele freq"}
   ref_chr: {type: File, doc: "folder of reference chromosomes"}
   chr_len: {type: File, doc: "file with chromosome lengths"}
   threads: int
@@ -35,7 +37,9 @@ steps:
     run: ../tools/control_freec.cwl
     in: 
       tumor_bam: input_tumor
+      tumor_mini_pileup: tumor_mini_pileup
       normal_bam: input_normal
+      normal_mini_pileup: normal_mini_pileup
       capture_regions: capture_regions
       ref_chr: ref_chr
       chr_len: chr_len

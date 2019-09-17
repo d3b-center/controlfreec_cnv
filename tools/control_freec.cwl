@@ -9,7 +9,7 @@ requirements:
     ramMin: 20000
     coresMin: 16
   - class: DockerRequirement
-    dockerPull: 'kfdrc/controlfreec:11.5'
+    dockerPull: 'migbro/controlfreec:latest'
 
 baseCommand: [tar, -xzf]
 arguments:
@@ -17,7 +17,7 @@ arguments:
     shellQuote: false
     valueFrom: >-
       $(inputs.ref_chr.path)
-      && /FREEC-11.5/src/freec
+      && /FREEC/src/freec
       -conf $(inputs.config_file.path)
       && mv $(inputs.tumor_bam.basename)_ratio.txt $(inputs.output_basename).ratio.txt
       && gzip $(inputs.output_basename).ratio.txt
@@ -29,15 +29,17 @@ arguments:
 
       ${
         var cmd = "mv " + inputs.tumor_bam.basename + "_BAF.txt " + inputs.output_basename + "_tumor_BAF.txt";
-        if (inputs.b_allele == null){
-          cmd = "echo No b allele file, skipping output BAF";
+        if (inputs.b_allele == null && inputs.tumor_mini_pileup == null){
+          cmd = "echo No b allele or mini pileup file, skipping output BAF";
         }
         return cmd;
       }
 
 inputs:
   tumor_bam: { type: File, secondaryFiles: [^.bai] }
+  tumor_mini_pileup: {type: ['null', File], doc: "Add if you have a pre-compiled pileup for b allele freq"}
   normal_bam: { type: File, secondaryFiles: [^.bai] }
+  normal_mini_pileup: {type: ['null', File], doc: "Add if you have a pre-compiled pileup for b allele freq"}
   ref_chr: {type: File, doc: "folder of reference chromosomes"}
   chr_len: {type: File, doc: "file with chromosome lengths"}
   threads: int

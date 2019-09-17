@@ -9,7 +9,7 @@ requirements:
     coresMin: 2
     coresMax: 8
   - class: DockerRequirement
-    dockerPull: 'kfdrc/controlfreec:11.5'
+    dockerPull: 'migbro/controlfreec:latest'
 baseCommand: ["/bin/bash", "-c"]
 arguments:
   - position: 1
@@ -24,7 +24,7 @@ arguments:
         RATIO=./$(inputs.cnv_bam_ratio.nameroot);
       fi
 
-      cat /FREEC-11.5/scripts/assess_significance.R
+      cat /FREEC/scripts/assess_significance.R
       | R
       --slave
       --args
