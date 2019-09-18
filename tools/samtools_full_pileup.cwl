@@ -28,7 +28,7 @@ inputs:
     type: ['null', int]
     default: 16
   reference: {type: File, secondaryFiles: [.fai]}
-  bedtools_genome: {type: File, doc: "File with chromosomes and sizes of bed file contents"}
+  subset_fai: {type: File, doc: "Subset of reference fai with desired chromosomes to split out"}
 outputs:
   pileup:
     type: File

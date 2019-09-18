@@ -197,6 +197,9 @@ inputs:
     doc: >-
       Maximal exptected value of the GC-content for the prior evaluation of
       "Read Count ~ GC-content" dependancy.
+  - id: output_basename
+    type: string
+    doc: "KFDRC additions set basename for outputs instead of input bam name"
   - 'sbg:category': General
     'sbg:toolDefaultValue': '8'
     id: max_threads
@@ -374,6 +377,7 @@ outputs:
         }
       outputEval: |
         ${
+            self.basename = inputs.output_basename + "_GC_profile.targetedRegions.cnp"
             return inheritMetadata(self, inputs.mate_file_sample)
 
         }
@@ -386,6 +390,7 @@ outputs:
       glob: '*_CNVs'
       outputEval: |+
         ${
+            self.basename = inputs.output_basename + ".CNVs"
             return inheritMetadata(self, inputs.mate_file_sample)
 
         }
@@ -399,6 +404,7 @@ outputs:
       glob: '*.p.value.txt'
       outputEval: |
         ${
+            self.basename = inputs.output_basename + ".CNVs.p.value.txt"
             return inheritMetadata(self, inputs.mate_file_sample)
 
         }
@@ -411,6 +417,7 @@ outputs:
       glob: config.txt
       outputEval: |
         ${
+            self.basename = inputs.output_basename + "_config.txt"
             return inheritMetadata(self, inputs.mate_file_sample)
 
         }
@@ -423,6 +430,7 @@ outputs:
       glob: '*_control.cpn'
       outputEval: |-
         ${  if (inputs.mate_file_control){
+            self.basename = inputs.output_basename + ".control.cpn"
             return inheritMetadata(self, inputs.mate_file_control)
         }
         }
@@ -457,6 +465,7 @@ outputs:
       glob: '*_info.txt'
       outputEval: |
         ${
+            self.basename = inpus.output_basename + ".info.txt"
             return inheritMetadata(self, inputs.mate_file_sample)
 
         }
@@ -469,6 +478,17 @@ outputs:
     type: 'File[]?'
     outputBinding:
       glob: '*png'
+      outputEval: |-
+        ${
+          for (var i=0; i<self.length, i++){
+            self[i].basename = self[i].basename.replace("_bam", "")
+            var parts = self[i].basename.split('.')
+            new_name = inputs.output_basename + "." + parts.slice(1,).join(".")
+            self[i].basename = new_name
+            
+          }
+          return self
+        }
     'sbg:fileTypes': PNG
   - id: ratio
     doc: File with ratios and predicted copy number alterations for each window.
@@ -478,6 +498,7 @@ outputs:
       glob: '*_ratio.txt'
       outputEval: |
         ${
+            self.basename = inputs.output_basename + ".ratio.txt"
             return inheritMetadata(self, inputs.mate_file_sample)
 
         }
@@ -504,6 +525,7 @@ outputs:
       glob: '*_BAF.txt'
       outputEval: |
         ${
+            self.basename = inputs.output_basename + ".BAF.txt"
             return inheritMetadata(self, inputs.mate_file_sample)
 
         }
@@ -516,6 +538,7 @@ outputs:
       glob: '*_sample.cpn'
       outputEval: |-
         ${
+            self.basename = inputs.output_basename + ".sample.cpn"
             return inheritMetadata(self, inputs.mate_file_sample)
 
         }
