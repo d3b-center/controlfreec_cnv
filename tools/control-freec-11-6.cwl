@@ -465,7 +465,7 @@ outputs:
       glob: '*_info.txt'
       outputEval: |
         ${
-            self.basename = inpus.output_basename + ".info.txt"
+            self.basename = inputs.output_basename + ".info.txt"
             return inheritMetadata(self, inputs.mate_file_sample)
 
         }
@@ -478,12 +478,12 @@ outputs:
     type: 'File[]?'
     outputBinding:
       glob: '*png'
-      outputEval: |-
+      outputEval: >-
         ${
-          for (var i=0; i<self.length, i++){
+          for (var i=0; i<self.length; i++){
             self[i].basename = self[i].basename.replace("_bam", "")
             var parts = self[i].basename.split('.')
-            new_name = inputs.output_basename + "." + parts.slice(1,).join(".")
+            var new_name = inputs.output_basename + "." + parts.slice(1,).join(".")
             self[i].basename = new_name
             
           }
@@ -708,10 +708,6 @@ arguments:
     shellQuote: false
     valueFrom: |-
       ${
-
-
-
-
           if (inputs.mate_file_sample) {
               filepath = inputs.mate_file_sample.path
               filename = filepath.split("/").pop()
@@ -1065,10 +1061,8 @@ requirements:
                 return files.reverse();
         };
 hints:
-  - class: 'sbg:maxNumberOfParallelInstances'
-    value: 2
   - class: 'sbg:AWSInstanceType'
-    value: c5.4xlarge;ebs-gp2;2500
+    value: c5.9xlarge;ebs-gp2;2500
 successCodes:
   - 0
 temporaryFailCodes:

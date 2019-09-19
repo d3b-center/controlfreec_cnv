@@ -23,6 +23,7 @@ inputs:
   coeff_var: {type: float, default: 0.05, doc: "Coefficient of variantion to set window size.  Default 0.05 recommended"}
   include_expression: {type: ['null', string], doc: "Filter expression if vcf has mixed somatic/germline calls, use as-needed"}
   exclude_expression: {type: ['null', string], doc: "Filter expression if vcf has mixed somatic/germline calls, use as-needed"}
+  sex: {type: ['null', string], doc: "If known, XX for female, XY for male"}
 
 outputs:
   ctrlfreec_cnv: {type: File, outputSource: control_free_c/cnvs}
@@ -89,18 +90,19 @@ steps:
     in: 
       mate_file_sample: samtools_cram2bam_tumor/bam_file
       mate_orientation_sample: mate_orientation_sample
-      sample_pileup: samtools_tumor_pileup/pileup
+      mini_pileup_sample: samtools_tumor_pileup/pileup
       mate_file_control: samtools_cram2bam_normal/bam_file
       mate_orientation_control: mate_orientation_control
-      control_pileup: samtools_normal_pileup/pileup
+      mini_pileup_control: samtools_normal_pileup/pileup
       chr_len: chr_len
       ploidy: ploidy
       capture_regions: capture_regions
-      threads: threads
+      max_threads: threads
       reference: reference
       snp_file: bcftools_filter_vcf/filtered_vcf
       coeff_var: coeff_var
       output_basename: output_basename
+      sex: sex
     out: [cnvs, cnvs_pvalue, config_script, pngs, ratio, sample_BAF, info_txt, sample_cpn, control_cpn]
     
 $namespaces:
