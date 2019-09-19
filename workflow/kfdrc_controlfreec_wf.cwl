@@ -16,7 +16,7 @@ inputs:
   mate_orientation_sample: {type: ['null', string], default: "RF", doc: "0 (for single ends), RF (Illumina mate-pairs), FR (Illumina paired-ends), FF (SOLiD mate-pairs)"}
   mate_orientation_control: {type: ['null', string], default: "RF", doc: "0 (for single ends), RF (Illumina mate-pairs), FR (Illumina paired-ends), FF (SOLiD mate-pairs)"}
   capture_regions: {type: ['null', File], doc: "If not WGS, provide "}
-  reference: {type: ['null', File], doc: "Needed if providing b allele"}
+  reference: {type: File, secondaryFiles: [.fai], doc: "Needed if providing b allele"}
   subset_fai: {type: File, doc: "fasta index that is a subset of the main reference fasta file"}
   b_allele: {type: ['null', File], doc: "germline calls, needed for BAF.  VarDict input recommended.  Tool will prefilter for germline and pass if expression given"}
   chr_len: {type: File, doc: "TSV with chromsome names and lengths. Limit to chromosome you actualy want analyzed"}
