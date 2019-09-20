@@ -414,7 +414,7 @@ outputs:
     label: Configuration script used for running
     type: File?
     outputBinding:
-      glob: config.txt
+      glob: 'config.txt'
       outputEval: |
         ${
             self.basename = inputs.output_basename + "_config.txt"
@@ -483,7 +483,10 @@ outputs:
           for (var i=0; i<self.length; i++){
             self[i].basename = self[i].basename.replace("_bam", "")
             var parts = self[i].basename.split('.')
-            var new_name = inputs.output_basename + "." + parts.slice(1,).join(".")
+            var new_name = inputs.output_basename
+            for (var j=1; j<parts.length; j++){
+              new_name += "." + parts[j]
+            }
             self[i].basename = new_name
             
           }
@@ -709,15 +712,15 @@ arguments:
     valueFrom: |-
       ${
           if (inputs.mate_file_sample) {
-              filepath = inputs.mate_file_sample.path
-              filename = filepath.split("/").pop()
+              var filepath = inputs.mate_file_sample.path
+              var filename = filepath.split("/").pop()
           } else {
-              filepath = inputs.mate_copynumber_file_sample.path
-              filename = filepath.split("/").pop()
+              var filepath = inputs.mate_copynumber_file_sample.path
+              var filename = filepath.split("/").pop()
           }
 
-          CNVs = filename + "_CNVs"
-          ratio = filename + "_ratio" + ".txt"
+          var CNVs = filename + "_CNVs"
+          var ratio = filename + "_ratio" + ".txt"
 
 
           return "cat assess_significance.R | R --slave --args " + CNVs + " " + ratio
@@ -748,14 +751,14 @@ arguments:
     valueFrom: |-
       ${
           if (inputs.mate_file_sample) {
-              filepath = inputs.mate_file_sample.path
-              filename = filepath.split("/").pop()
+              var filepath = inputs.mate_file_sample.path
+              var filename = filepath.split("/").pop()
           } else {
-              filepath = inputs.mate_copynumber_file_sample.path
-              filename = filepath.split("/").pop()
+              var filepath = inputs.mate_copynumber_file_sample.path
+              var filename = filepath.split("/").pop()
           }
 
-          ratio = filename + "_ratio" + ".txt"
+          var ratio = filename + "_ratio" + ".txt"
 
           return ratio
       }
@@ -766,19 +769,19 @@ arguments:
 
           if (inputs.snp_file) {
 
-              sufix = "_BAF"
-              sufix_ext = ".txt"
+              var sufix = "_BAF"
+              var sufix_ext = ".txt"
 
               if (inputs.mate_file_sample) {
-                  filepath = inputs.mate_file_sample.path
-                  filename = filepath.split("/").pop()
+                  var filepath = inputs.mate_file_sample.path
+                  var filename = filepath.split("/").pop()
               } else {
-                  filepath = inputs.mate_copynumber_file_sample.path
-                  filename = filepath.split("/").pop()
+                  var filepath = inputs.mate_copynumber_file_sample.path
+                  var filename = filepath.split("/").pop()
               }
 
 
-              new_filename = filename + sufix + sufix_ext
+              var new_filename = filename + sufix + sufix_ext
 
               return new_filename
           }
@@ -790,7 +793,7 @@ arguments:
 
           if (inputs.mate_file_control) {
               if (inputs.mate_file_control.path.split('.').pop() != 'pileup') {
-                  com = ''
+                  var com = ''
                   com += '&& mv sample.pileup '
 
               }

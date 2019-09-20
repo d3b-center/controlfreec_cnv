@@ -13,8 +13,8 @@ inputs:
   threads: int
   output_basename: string
   ploidy: {type: 'int[]', doc: "Array of ploidy possibilities for ControlFreeC to try"}
-  mate_orientation_sample: {type: ['null', string], default: "RF", doc: "0 (for single ends), RF (Illumina mate-pairs), FR (Illumina paired-ends), FF (SOLiD mate-pairs)"}
-  mate_orientation_control: {type: ['null', string], default: "RF", doc: "0 (for single ends), RF (Illumina mate-pairs), FR (Illumina paired-ends), FF (SOLiD mate-pairs)"}
+  mate_orientation_sample: {type: ['null', string], default: "FR", doc: "0 (for single ends), RF (Illumina mate-pairs), FR (Illumina paired-ends), FF (SOLiD mate-pairs)"}
+  mate_orientation_control: {type: ['null', string], default: "FR", doc: "0 (for single ends), RF (Illumina mate-pairs), FR (Illumina paired-ends), FF (SOLiD mate-pairs)"}
   capture_regions: {type: ['null', File], doc: "If not WGS, provide "}
   reference: {type: File, secondaryFiles: [.fai], doc: "Needed if providing b allele"}
   subset_fai: {type: File, doc: "fasta index that is a subset of the main reference fasta file"}
@@ -79,7 +79,7 @@ steps:
   samtools_cram2bam_normal:
     run: ../tools/samtools_cram2bam.cwl
     in:
-      input_reads: input_tumor
+      input_reads: input_normal
       threads: threads
       reference: reference
     out:
