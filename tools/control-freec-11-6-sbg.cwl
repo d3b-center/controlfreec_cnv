@@ -2,7 +2,7 @@ class: CommandLineTool
 cwlVersion: v1.0
 $namespaces:
   sbg: 'https://sevenbridges.com'
-id: brownm28/mb-controlfreec-troubleshoot/control-freec-11-6/1
+id: brownm28/mb-controlfreec-troubleshoot/control-freec-11-6-sbg/0
 baseCommand: []
 inputs:
   - 'sbg:category': General
@@ -197,9 +197,6 @@ inputs:
     doc: >-
       Maximal exptected value of the GC-content for the prior evaluation of
       "Read Count ~ GC-content" dependancy.
-  - id: output_basename
-    type: string
-    doc: "KFDRC additions set basename for outputs instead of input bam name"
   - 'sbg:category': General
     'sbg:toolDefaultValue': '8'
     id: max_threads
@@ -377,7 +374,6 @@ outputs:
         }
       outputEval: |
         ${
-            self.basename = inputs.output_basename + "_GC_profile.targetedRegions.cnp"
             return inheritMetadata(self, inputs.mate_file_sample)
 
         }
@@ -390,7 +386,6 @@ outputs:
       glob: '*_CNVs'
       outputEval: |+
         ${
-            self.basename = inputs.output_basename + ".CNVs"
             return inheritMetadata(self, inputs.mate_file_sample)
 
         }
@@ -404,7 +399,6 @@ outputs:
       glob: '*.p.value.txt'
       outputEval: |
         ${
-            self.basename = inputs.output_basename + ".CNVs.p.value.txt"
             return inheritMetadata(self, inputs.mate_file_sample)
 
         }
@@ -414,10 +408,9 @@ outputs:
     label: Configuration script used for running
     type: File?
     outputBinding:
-      glob: 'config.txt'
+      glob: config.txt
       outputEval: |
         ${
-            self.basename = inputs.output_basename + "_config.txt"
             return inheritMetadata(self, inputs.mate_file_sample)
 
         }
@@ -430,7 +423,6 @@ outputs:
       glob: '*_control.cpn'
       outputEval: |-
         ${  if (inputs.mate_file_control){
-            self.basename = inputs.output_basename + ".control.cpn"
             return inheritMetadata(self, inputs.mate_file_control)
         }
         }
@@ -465,7 +457,6 @@ outputs:
       glob: '*_info.txt'
       outputEval: |
         ${
-            self.basename = inputs.output_basename + ".info.txt"
             return inheritMetadata(self, inputs.mate_file_sample)
 
         }
@@ -478,20 +469,6 @@ outputs:
     type: 'File[]?'
     outputBinding:
       glob: '*png'
-      outputEval: >-
-        ${
-          for (var i=0; i<self.length; i++){
-            self[i].basename = self[i].basename.replace("_bam", "")
-            var parts = self[i].basename.split('.')
-            var new_name = inputs.output_basename
-            for (var j=1; j<parts.length; j++){
-              new_name += "." + parts[j]
-            }
-            self[i].basename = new_name
-            
-          }
-          return self
-        }
     'sbg:fileTypes': PNG
   - id: ratio
     doc: File with ratios and predicted copy number alterations for each window.
@@ -501,7 +478,6 @@ outputs:
       glob: '*_ratio.txt'
       outputEval: |
         ${
-            self.basename = inputs.output_basename + ".ratio.txt"
             return inheritMetadata(self, inputs.mate_file_sample)
 
         }
@@ -528,7 +504,6 @@ outputs:
       glob: '*_BAF.txt'
       outputEval: |
         ${
-            self.basename = inputs.output_basename + ".BAF.txt"
             return inheritMetadata(self, inputs.mate_file_sample)
 
         }
@@ -541,7 +516,6 @@ outputs:
       glob: '*_sample.cpn'
       outputEval: |-
         ${
-            self.basename = inputs.output_basename + ".sample.cpn"
             return inheritMetadata(self, inputs.mate_file_sample)
 
         }
@@ -711,16 +685,20 @@ arguments:
     shellQuote: false
     valueFrom: |-
       ${
+
+
+
+
           if (inputs.mate_file_sample) {
-              var filepath = inputs.mate_file_sample.path
-              var filename = filepath.split("/").pop()
+              filepath = inputs.mate_file_sample.path
+              filename = filepath.split("/").pop()
           } else {
-              var filepath = inputs.mate_copynumber_file_sample.path
-              var filename = filepath.split("/").pop()
+              filepath = inputs.mate_copynumber_file_sample.path
+              filename = filepath.split("/").pop()
           }
 
-          var CNVs = filename + "_CNVs"
-          var ratio = filename + "_ratio" + ".txt"
+          CNVs = filename + "_CNVs"
+          ratio = filename + "_ratio" + ".txt"
 
 
           return "cat assess_significance.R | R --slave --args " + CNVs + " " + ratio
@@ -751,14 +729,14 @@ arguments:
     valueFrom: |-
       ${
           if (inputs.mate_file_sample) {
-              var filepath = inputs.mate_file_sample.path
-              var filename = filepath.split("/").pop()
+              filepath = inputs.mate_file_sample.path
+              filename = filepath.split("/").pop()
           } else {
-              var filepath = inputs.mate_copynumber_file_sample.path
-              var filename = filepath.split("/").pop()
+              filepath = inputs.mate_copynumber_file_sample.path
+              filename = filepath.split("/").pop()
           }
 
-          var ratio = filename + "_ratio" + ".txt"
+          ratio = filename + "_ratio" + ".txt"
 
           return ratio
       }
@@ -769,19 +747,19 @@ arguments:
 
           if (inputs.snp_file) {
 
-              var sufix = "_BAF"
-              var sufix_ext = ".txt"
+              sufix = "_BAF"
+              sufix_ext = ".txt"
 
               if (inputs.mate_file_sample) {
-                  var filepath = inputs.mate_file_sample.path
-                  var filename = filepath.split("/").pop()
+                  filepath = inputs.mate_file_sample.path
+                  filename = filepath.split("/").pop()
               } else {
-                  var filepath = inputs.mate_copynumber_file_sample.path
-                  var filename = filepath.split("/").pop()
+                  filepath = inputs.mate_copynumber_file_sample.path
+                  filename = filepath.split("/").pop()
               }
 
 
-              var new_filename = filename + sufix + sufix_ext
+              new_filename = filename + sufix + sufix_ext
 
               return new_filename
           }
@@ -793,7 +771,7 @@ arguments:
 
           if (inputs.mate_file_control) {
               if (inputs.mate_file_control.path.split('.').pop() != 'pileup') {
-                  var com = ''
+                  com = ''
                   com += '&& mv sample.pileup '
 
               }
@@ -1063,9 +1041,6 @@ requirements:
             else
                 return files.reverse();
         };
-hints:
-  - class: 'sbg:AWSInstanceType'
-    value: c5.9xlarge;ebs-gp2;2500
 successCodes:
   - 0
 temporaryFailCodes:
@@ -1096,26 +1071,23 @@ temporaryFailCodes:
 'sbg:revisionsInfo':
   - 'sbg:revision': 0
     'sbg:modifiedBy': brownm28
-    'sbg:modifiedOn': 1567606694
+    'sbg:modifiedOn': 1569186036
     'sbg:revisionNotes': Copy of bogdang/controlfreec/control-freec-11-6/1
-  - 'sbg:revision': 1
-    'sbg:modifiedBy': brownm28
-    'sbg:modifiedOn': 1567773002
-    'sbg:revisionNotes': increased disk space
 'sbg:appVersion':
   - v1.0
-'sbg:id': brownm28/mb-controlfreec-troubleshoot/control-freec-11-6/1
-'sbg:revision': 1
-'sbg:revisionNotes': increased disk space
-'sbg:modifiedOn': 1567773002
+'sbg:id': brownm28/mb-controlfreec-troubleshoot/control-freec-11-6-sbg/0
+'sbg:revision': 0
+'sbg:revisionNotes': Copy of bogdang/controlfreec/control-freec-11-6/1
+'sbg:modifiedOn': 1569186036
 'sbg:modifiedBy': brownm28
-'sbg:createdOn': 1567606694
+'sbg:createdOn': 1569186036
 'sbg:createdBy': brownm28
 'sbg:project': brownm28/mb-controlfreec-troubleshoot
 'sbg:sbgMaintained': false
 'sbg:validationErrors': []
 'sbg:contributors':
   - brownm28
-'sbg:latestRevision': 1
+'sbg:latestRevision': 0
 'sbg:publisher': sbg
-'sbg:content_hash': aac0441ad51341351faa7835729a6541143db67f92c11f5eaed291a16ef7a05f5
+'sbg:content_hash': a8c609371987909ebbcad810349a09839fd48c2a7d4481c277e28cce897ed68cd
+'sbg:copyOf': bogdang/controlfreec/control-freec-11-6/1
