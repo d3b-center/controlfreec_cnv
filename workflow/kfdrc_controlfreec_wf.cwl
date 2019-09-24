@@ -10,14 +10,15 @@ requirements:
 inputs:
   input_tumor: {type: File, secondaryFiles: [.crai]}
   input_normal: {type: File, secondaryFiles: [.crai]}
-  sample_name: {type: string, default: input_tumor.metadata["Kids First Biospecimen ID"]}
-  threads: int
+  sample_name: {type: string, doc: "Sample name to put into the converted seg file"}
+  threads: {type: int, doc: "Number of threads to run controlfreec.  Going above 16 is not recommended, there is no apparent added value"}
   output_basename: string
   ploidy: {type: 'int[]', doc: "Array of ploidy possibilities for ControlFreeC to try"}
   mate_orientation_sample: {type: ['null', string], default: "FR", doc: "0 (for single ends), RF (Illumina mate-pairs), FR (Illumina paired-ends), FF (SOLiD mate-pairs)"}
   mate_orientation_control: {type: ['null', string], default: "FR", doc: "0 (for single ends), RF (Illumina mate-pairs), FR (Illumina paired-ends), FF (SOLiD mate-pairs)"}
   capture_regions: {type: ['null', File], doc: "If not WGS, provide "}
   reference: {type: File, secondaryFiles: [.fai], doc: "Needed if providing b allele"}
+  reference_fai: {type: File, doc: "fasta index file for seg file conversion"}
   b_allele: {type: ['null', File], doc: "germline calls, needed for BAF.  VarDict input recommended.  Tool will prefilter for germline and pass if expression given"}
   chr_len: {type: File, doc: "TSV with chromsome names and lengths. Limit to chromosome you actualy want analyzed"}
   coeff_var: {type: float, default: 0.05, doc: "Coefficient of variantion to set window size.  Default 0.05 recommended"}
@@ -49,41 +50,23 @@ steps:
     out:
       [filtered_vcf]
 
-  # samtools_tumor_pileup:
-  #   run: ../tools/samtools_full_pileup.cwl
-  #   in:
-  #     input_reads: input_tumor
-  #     threads: threads
-  #     reference: reference
-  #     subset_fai: subset_fai
-  #   out:
-  #     [pileup]
-
-  # samtools_normal_pileup:
-  #   run: ../tools/samtools_full_pileup.cwl
-  #   in:
-  #     input_reads: input_normal
-  #     threads: threads
-  #     reference: reference
-  #     subset_fai: subset_fai
-  #   out:
-  #     [pileup]
-
-  samtools_tumor_pileup:
+  controlfreec_tumor_mini_pileup:
     run: ../tools/control_freec_mini_pileup.cwl
     in:
       input_reads: samtools_cram2bam_tumor/bam_file
-      threads: threads
+      threads:
+        valueFrom: ${return 16}
       reference: reference
       snp_vcf: b_allele
     out:
       [pileup]
 
-  samtools_normal_pileup:
+  controlfreec_normal_mini_pileup:
     run: ../tools/control_freec_mini_pileup.cwl
     in:
       input_reads: samtools_cram2bam_normal/bam_file
-      threads: threads
+      threads:
+        valueFrom: ${return 16}
       reference: reference
       snp_vcf: b_allele
     out:
@@ -93,7 +76,8 @@ steps:
     run: ../tools/samtools_cram2bam.cwl
     in:
       input_reads: input_tumor
-      threads: threads
+      threads:
+        valueFrom: ${return 16}
       reference: reference
     out:
       [bam_file]
@@ -102,7 +86,8 @@ steps:
     run: ../tools/samtools_cram2bam.cwl
     in:
       input_reads: input_normal
-      threads: threads
+      threads:
+        valueFrom: ${return 16}
       reference: reference
     out:
       [bam_file]
@@ -112,10 +97,10 @@ steps:
     in: 
       mate_file_sample: samtools_cram2bam_tumor/bam_file
       mate_orientation_sample: mate_orientation_sample
-      mini_pileup_sample: samtools_tumor_pileup/pileup
+      mini_pileup_sample: controlfreec_tumor_mini_pileup/pileup
       mate_file_control: samtools_cram2bam_normal/bam_file
       mate_orientation_control: mate_orientation_control
-      mini_pileup_control: samtools_normal_pileup/pileup
+      mini_pileup_control: controlfreec_normal_mini_pileup/pileup
       chr_len: chr_len
       ploidy: ploidy
       capture_regions: capture_regions
@@ -138,7 +123,7 @@ steps:
   convert_ratio_to_seg:
     run: ../tools/ubuntu_ratio2seg.cwl
     in:
-      reference_fai: reference.secondaryFiles[0]
+      reference_fai: reference_fai
       ctrlfreec_ratio: control_free_c/ratio
       sample_name: sample_name
       output_basename: output_basename
@@ -149,4 +134,4 @@ $namespaces:
   sbg: https://sevenbridges.com
 hints:
   - class: 'sbg:maxNumberOfParallelInstances'
-    value: 4
+    value: 2
