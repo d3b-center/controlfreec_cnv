@@ -10,6 +10,7 @@ requirements:
 inputs:
   input_tumor: {type: File, secondaryFiles: [.crai]}
   input_normal: {type: File, secondaryFiles: [.crai]}
+  sample_name: {type: string, default: input_tumor.metadata["Kids First Biospecimen ID"]}
   threads: int
   output_basename: string
   ploidy: {type: 'int[]', doc: "Array of ploidy possibilities for ControlFreeC to try"}
@@ -31,6 +32,7 @@ outputs:
   ctrlfreec_config: {type: File, outputSource: rename_outputs/ctrlfreec_config}
   ctrlfreec_pngs: {type: 'File[]', outputSource: rename_outputs/ctrlfreec_pngs}
   ctrlfreec_bam_ratio: {type: File, outputSource: rename_outputs/ctrlfreec_bam_ratio}
+  ctrlfreec_bam_seg: {type: File, outputSource: convert_ratio_to_seg/ctrlfreec_ratio2seg}
   ctrlfreec_baf: {type: File, outputSource: rename_outputs/ctrlfreec_baf}
   ctrlfreec_info: {type: File, outputSource: rename_outputs/ctrlfreec_info}
   ctrlfreec_tumor_cpn: {type: File, outputSource: rename_outputs/ctrlfreec_tumor_cpn}
@@ -121,7 +123,6 @@ steps:
       reference: reference
       snp_file: bcftools_filter_vcf/filtered_vcf
       coeff_var: coeff_var
-      output_basename: output_basename
       sex: sex
       contamination_adjustment: contamination_adjustment
     out: [cnvs, cnvs_pvalue, config_script, pngs, ratio, sample_BAF, info_txt, sample_cpn, control_cpn]
@@ -131,7 +132,18 @@ steps:
     in:
       input_files: [control_free_c/cnvs, control_free_c/cnvs_pvalue, control_free_c/config_script, control_free_c/ratio, control_free_c/sample_BAF, control_free_c/info_txt, control_free_c/sample_cpn, control_free_c/control_cpn]
       input_pngs: control_free_c/pngs
+      output_basename: output_basename
     out: [ctrlfreec_cnv, ctrlfreec_pval, ctrlfreec_config, ctrlfreec_pngs, ctrlfreec_bam_ratio, ctrlfreec_baf, ctrlfreec_info, ctrlfreec_tumor_cpn, ctrlfreec_normal_cpn]
+  
+  convert_ratio_to_seg:
+    run: ../tools/ubuntu_ratio2seg.cwl
+    in:
+      reference_fai: reference.secondaryFiles[0]
+      ctrlfreec_ratio: control_free_c/ratio
+      sample_name: sample_name
+      output_basename: output_basename
+    out: [ctrlfreec_ratio2seg]
+  
 
 $namespaces:
   sbg: https://sevenbridges.com

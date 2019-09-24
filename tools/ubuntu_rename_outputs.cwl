@@ -24,20 +24,21 @@ arguments:
             parts.shift();
             var check = fname.substr(fname.length - 10);
             if (check == "config.txt") {
-                cmd += "cp " + inputs.input_files[i].path + " " + inputs.output_basename + ".config.txt;";
+                cmd += "cp " + inputs.input_files[i].path + " " + inputs.output_basename + ".controlfreec.config.txt;";
             } else {
-            fname = inputs.output_basename + "." + parts.join(".");
+            fname = inputs.output_basename + ".controlfreec." + parts.join(".");
             cmd += " cp " + inputs.input_files[i].path + " " + fname + ";";
             
             }
         for (var j=0; j < inputs.input_pngs.length; j++){
-            var basename = inputs.input_pngs[j].basename;
-            var fname = basename.replace("bam_", "");
+            var nameroot = inputs.input_pngs[j].nameroot;
+            var fname = nameroot.replace("bam_", "");
+            fname = fname.replace(".txt", "");
             var parts = fname.split(".");
             parts.shift();
-            fname = inputs.output_basename + "." + parts.join(".");
+            fname = inputs.output_basename + ".controlfreec." + parts.join(".") + ".png";
             cmd += " cp " + inputs.input_pngs[j].path + " " + fname + ";";
-                }
+            }
           }
           return cmd;
       }
