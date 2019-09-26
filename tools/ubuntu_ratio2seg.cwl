@@ -29,6 +29,7 @@ arguments:
 
         ratio_file = open("$(inputs.ctrlfreec_ratio.path)")
         out = open("$(inputs.output_basename).controlfreec.seg", "w")
+        out.write("ID\tchrom\tloc.start\tloc.end\tnum.mark\tseg.mean\n") 
         head = next(ratio_file)
         count = 0
         for line in ratio_file:
