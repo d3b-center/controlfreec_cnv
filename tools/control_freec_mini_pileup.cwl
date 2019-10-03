@@ -20,7 +20,7 @@ arguments:
 
       /opt/sambamba_0.5.9/sambamba_v0.5.9 mpileup
       -t $(inputs.threads)
-      -o $(inputs.input_reads.nameroot).mini.pileup $(inputs.input_reads.path)
+      -o $(inputs.input_reads.nameroot).miniPileup $(inputs.input_reads.path)
       --samtools -f $(inputs.reference.path) -d 8000 -Q 0 -q 1 -l snps.bed
 
 inputs:
@@ -34,4 +34,4 @@ outputs:
   pileup:
     type: File
     outputBinding:
-      glob: $(inputs.input_reads.nameroot).mini.pileup
+      glob: $(inputs.input_reads.nameroot).miniPileup

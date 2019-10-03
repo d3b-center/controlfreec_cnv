@@ -14,21 +14,20 @@ inputs:
   threads: {type: int, doc: "Number of threads to run controlfreec.  Going above 16 is not recommended, there is no apparent added value"}
   output_basename: string
   ploidy: {type: 'int[]', doc: "Array of ploidy possibilities for ControlFreeC to try"}
-  mate_orientation_sample: {type: ['null', string], default: "FR", doc: "0 (for single ends), RF (Illumina mate-pairs), FR (Illumina paired-ends), FF (SOLiD mate-pairs)"}
-  mate_orientation_control: {type: ['null', string], default: "FR", doc: "0 (for single ends), RF (Illumina mate-pairs), FR (Illumina paired-ends), FF (SOLiD mate-pairs)"}
+  mate_orientation_sample: {type: ['null', {type: enum, name: mate_orientation_sample, symbols: ["0", "FR", "RF", "FF"]}], default: "FR", doc: "0 (for single ends), RF (Illumina mate-pairs), FR (Illumina paired-ends), FF (SOLiD mate-pairs)"}
+  mate_orientation_control: {type: ['null', {type: enum, name: mate_orientation_control, symbols: ["0", "FR", "RF", "FF"]}], default: "FR", doc: "0 (for single ends), RF (Illumina mate-pairs), FR (Illumina paired-ends), FF (SOLiD mate-pairs)"}
   capture_regions: {type: ['null', File], doc: "If not WGS, provide "}
   reference: {type: File, secondaryFiles: [.fai], doc: "Needed if providing b allele"}
   reference_fai: {type: File, doc: "fasta index file for seg file conversion"}
   b_allele: {type: ['null', File], doc: "germline calls, needed for BAF.  VarDict input recommended.  Tool will prefilter for germline and pass if expression given"}
-  chr_len: {type: File, doc: "TSV with chromsome names and lengths. Limit to chromosome you actualy want analyzed"}
+  chr_len: {type: File, doc: "TSV with chromsome names and lengths. Limit to chromosome you actually want analyzed"}
   coeff_var: {type: float, default: 0.05, doc: "Coefficient of variantion to set window size.  Default 0.05 recommended"}
-  contamination_adjustment: {type: ['null', string], doc: "TRUE or FALSE to have ControlFreec estimate normal contam"}
+  contamination_adjustment: {type: ['null', boolean], doc: "TRUE or FALSE to have ControlFreec estimate normal contam"}
   include_expression: {type: ['null', string], doc: "Filter expression if vcf has mixed somatic/germline calls, use as-needed"}
   exclude_expression: {type: ['null', string], doc: "Filter expression if vcf has mixed somatic/germline calls, use as-needed"}
-  sex: {type: ['null', string], doc: "If known, XX for female, XY for male"}
+  sex: {type: ['null', {type: enum, name: sex, symbols: ["XX", "XY"] }], doc: "If known, XX for female, XY for male"}
 
 outputs:
-  ctrlfreec_cnv: {type: File, outputSource: rename_outputs/ctrlfreec_cnv}
   ctrlfreec_pval: {type: File, outputSource: rename_outputs/ctrlfreec_pval}
   ctrlfreec_config: {type: File, outputSource: rename_outputs/ctrlfreec_config}
   ctrlfreec_pngs: {type: 'File[]', outputSource: rename_outputs/ctrlfreec_pngs}
@@ -36,8 +35,6 @@ outputs:
   ctrlfreec_bam_seg: {type: File, outputSource: convert_ratio_to_seg/ctrlfreec_ratio2seg}
   ctrlfreec_baf: {type: File, outputSource: rename_outputs/ctrlfreec_baf}
   ctrlfreec_info: {type: File, outputSource: rename_outputs/ctrlfreec_info}
-  ctrlfreec_tumor_cpn: {type: File, outputSource: rename_outputs/ctrlfreec_tumor_cpn}
-  ctrlfreec_normal_cpn: {type: File, outputSource: rename_outputs/ctrlfreec_normal_cpn}
 
 steps:
   bcftools_filter_vcf:
@@ -110,15 +107,15 @@ steps:
       coeff_var: coeff_var
       sex: sex
       contamination_adjustment: contamination_adjustment
-    out: [cnvs, cnvs_pvalue, config_script, pngs, ratio, sample_BAF, info_txt, sample_cpn, control_cpn]
+    out: [cnvs_pvalue, config_script, pngs, ratio, sample_BAF, info_txt]
 
   rename_outputs:
     run: ../tools/ubuntu_rename_outputs.cwl
     in:
-      input_files: [control_free_c/cnvs, control_free_c/cnvs_pvalue, control_free_c/config_script, control_free_c/ratio, control_free_c/sample_BAF, control_free_c/info_txt, control_free_c/sample_cpn, control_free_c/control_cpn]
+      input_files: [control_free_c/cnvs_pvalue, control_free_c/config_script, control_free_c/ratio, control_free_c/sample_BAF, control_free_c/info_txt]
       input_pngs: control_free_c/pngs
       output_basename: output_basename
-    out: [ctrlfreec_cnv, ctrlfreec_pval, ctrlfreec_config, ctrlfreec_pngs, ctrlfreec_bam_ratio, ctrlfreec_baf, ctrlfreec_info, ctrlfreec_tumor_cpn, ctrlfreec_normal_cpn]
+    out: [ctrlfreec_pval, ctrlfreec_config, ctrlfreec_pngs, ctrlfreec_bam_ratio, ctrlfreec_baf, ctrlfreec_info]
   
   convert_ratio_to_seg:
     run: ../tools/ubuntu_ratio2seg.cwl

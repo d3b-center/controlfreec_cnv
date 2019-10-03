@@ -16,29 +16,32 @@ arguments:
     shellQuote: false
     valueFrom: >-
       ${
+        var out_base = inputs.output_basename;
+        if (out_base == null){
+          out_base = inputs.input_vcf.nameroot + ".bcf_filtered"
+        }
         var cmd = "bcftools view ";
         if (inputs.include_expression != null){
             cmd += "--include '" + inputs.include_expression + "' " + inputs.input_vcf.path;
             if (inputs.exclude_expression != null){
-                cmd += " | bcftools view --exclude '" + inputs.exclude_expression + "' -O z > " + inputs.output_basename + ".vcf.gz;";
+                cmd += " | bcftools view --exclude '" + inputs.exclude_expression + "' -O z > " + out_base + ".vcf.gz;";
             } else {
-                cmd += " -O z > " + inputs.output_basename + ".vcf.gz;";
+                cmd += " -O z > " + out_base + ".vcf.gz;";
             }
         } else if (inputs.include_expression == null && inputs.exclude_expression != null){
-            cmd += "--exclude '" + inputs.exclude_expression + "' " + inputs.input_vcf.path + " -O z > " + inputs.output_basename + ".vcf.gz;";
+            cmd += "--exclude '" + inputs.exclude_expression + "' " + inputs.input_vcf.path + " -O z > " + out_base + ".vcf.gz;";
         } else if (inputs.include_expression == null && inputs.exclude_expression == null){
-            cmd = "cp " + inputs.input_vcf.path + " ./" + inputs.output_basename + ".vcf.gz;";
+            cmd = "cp " + inputs.input_vcf.path + " ./" + out_base + ".vcf.gz;";
         }
+        cmd += "tabix " + out_base + ".vcf.gz;"
         return cmd;
       }
-
-      tabix $(inputs.output_basename).vcf.gz
 
 inputs:
   input_vcf: File
   include_expression: ['null', string]
   exclude_expression: ['null', string]
-  output_basename: string
+  output_basename: ['null', string]
 outputs:
   filtered_vcf:
     type: File

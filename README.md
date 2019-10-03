@@ -1,12 +1,11 @@
-# controlfreec_cnv
-Re-develop/redeploy our controlfreec tool to incorporate exome mode
-When running exome mode: include bed file and 'Y' for exome flag. Otherwise, it will run WGS 
+# KFDRC ControlFreeC WGS Workflow
 
-Current docker:
-https://github.com/d3b-center/bixtools/tree/master/controlfreec/11.5
+## Summary
+This workflow contains a wrapper around the Seven Bridges Genomics developed ControlFreeC v11.6 tool.  It creates the mini-pileup that
+software would normally create internally of the b allele frequency file in parallel for improved performance.  It also renames outputs
+and creates a bonus seg file output that is not native to ControlFreeC output
 
-Current use in somatic wes wf:
-https://github.com/kids-first/kf-somatic-workflow/tree/mb-add-sans-cnv
+## Related Links/Info:
+Tool Docker Pull: `images.sbgenomics.com/vojislav_varjacic/control-freec-11-6:v1`
 
-Control FreeeC Docs:
-http://boevalab.com/FREEC/tutorial.html#EXOME
+Control FreeeC Docs: http://boevalab.inf.ethz.ch/FREEC/tutorial.html
